@@ -60,24 +60,24 @@ tasks.named("build") {
 
 tasks.register<Copy>("copyJar") {
     from(tasks.named("shadowJar"))
-    into("$buildDir/compiled")
+    into("$buildDir/libs")
     rename { "BetterKotlinTelegram-$version.jar" }
+    finalizedBy("deleteJar")
+}
+
+tasks.register<Delete>("deleteJar") {
+    delete(tasks.named("shadowJar"))
 }
 
 val groupIdStr = group.toString()
 val versionStr = version.toString()
 var artifactIdStr = rootProject.name
-val repoUrl = if (versionStr.contains("beta", ignoreCase = true) || versionStr.contains("snapshot", ignoreCase = true)) {
-    "releases"
-} else {
-    "snapshots"
-}
 
 publishing {
     repositories {
         maven {
             name = "SolsticeLeafRepository"
-            url = uri("https://repo.kiinse.dev/$repoUrl")
+            url = uri("https://repo.kiinse.dev/releases")
             credentials(PasswordCredentials::class)
             authentication {
                 create<BasicAuthentication>("basic")
