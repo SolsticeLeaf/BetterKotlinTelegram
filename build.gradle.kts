@@ -1,6 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
+    `maven-publish`
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.github.ben-manes.versions") version "0.51.0"
@@ -61,4 +62,34 @@ tasks.register<Copy>("copyJar") {
     from(tasks.named("shadowJar"))
     into("$buildDir/compiled")
     rename { "BetterKotlinTelegram-$version.jar" }
+}
+
+val groupIdStr = group.toString()
+val versionStr = version.toString()
+var artifactIdStr = rootProject.name
+val repoUrl = if (versionStr.contains("beta", ignoreCase = true) || versionStr.contains("snapshot", ignoreCase = true)) {
+    "releases"
+} else {
+    "snapshots"
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "SolsticeLeafRepository"
+            url = uri("https://repo.kiinse.dev/$repoUrl")
+            credentials(PasswordCredentials::class)
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+        }
+    }
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = groupIdStr
+            artifactId = artifactIdStr
+            version = versionStr
+            from(components["java"])
+        }
+    }
 }
