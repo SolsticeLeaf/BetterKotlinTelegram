@@ -32,9 +32,17 @@ class KotlinBot(telegramBotBuilder: BotBuilder) : LongPollingSingleThreadUpdateC
                     Config.debug { logger.info("($id) Args: ${args.joinToString(", ")}") }
                     val command = commandManager.getCommand(args[0])
                     Config.debug { logger.info("($id) Command: ${command?.javaClass?.simpleName}") }
-                    val message = update.message ?: update.callbackQuery?.message ?: update.editedMessage
+                    val message = update.message ?: update.callbackQuery?.message
                     if (message == null) {
-                        throw TelegramApiException("Message is null!")
+                        if (update.hasEditedMessage() && commandConsume != null) {
+                            Config.debug { logger.info("Using external onMessage method") }
+                            val msg = update.editedMessage
+                            val id = msg.chatId
+                            commandConsume.onMessage(update, CommandContext(id, id.toString(), msg.from, msg.messageId, msg), telegramClient)
+                            return@runBlocking
+                        } else {
+                            throw TelegramApiException("Message is null!")
+                        }
                     }
                     val chatId = message.chatId
                     val messageId = message.messageId
