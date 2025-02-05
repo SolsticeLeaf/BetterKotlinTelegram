@@ -32,8 +32,10 @@ class KotlinBot(telegramBotBuilder: BotBuilder) : LongPollingSingleThreadUpdateC
                     Config.debug { logger.info("($id) Args: ${args.joinToString(", ")}") }
                     val command = commandManager.getCommand(args[0])
                     Config.debug { logger.info("($id) Command: ${command?.javaClass?.simpleName}") }
-                    val message = update.message ?: update.callbackQuery?.message
-                    if (message == null) { throw TelegramApiException("Message is null!") }
+                    val message = update.message ?: update.callbackQuery?.message ?: update.editedMessage
+                    if (message == null) {
+                        throw TelegramApiException("Message is null!")
+                    }
                     val chatId = message.chatId
                     val messageId = message.messageId
                     val stringId = chatId.toString()
