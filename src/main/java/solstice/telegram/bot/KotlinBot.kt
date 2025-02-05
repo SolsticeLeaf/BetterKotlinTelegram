@@ -46,7 +46,7 @@ class KotlinBot(telegramBotBuilder: BotBuilder) : LongPollingSingleThreadUpdateC
                             listOf()
                         }
                     }
-                    commandConsume(id, command, context.await(), argsWithoutCommand.await()).start()
+                    commandConsume(update, id, command, context.await(), argsWithoutCommand.await()).start()
                     deleteMessage(stringId, messageId).start()
                 } catch (e: Exception) {
                     logger.error("Error while processing update {}", update, e)
@@ -85,7 +85,7 @@ class KotlinBot(telegramBotBuilder: BotBuilder) : LongPollingSingleThreadUpdateC
         }
     }
 
-    private fun commandConsume(commandId: String, command: TCommand?, context: CommandContext, args: List<String>) = CoroutineScope(Dispatchers.IO).async {
+    private fun commandConsume(update: Update, commandId: String, command: TCommand?, context: CommandContext, args: List<String>) = CoroutineScope(Dispatchers.IO).async {
         Config.debug { logger.info("($commandId) Executing command...") }
         if (commandConsume == null) {
             Config.debug { logger.info("($commandId) No found external consumers, using defaults...") }
@@ -97,7 +97,7 @@ class KotlinBot(telegramBotBuilder: BotBuilder) : LongPollingSingleThreadUpdateC
                 commandConsume.onCommand(command, context, telegramClient, args)
             } else {
                 Config.debug { logger.info("($commandId) Using external onMessage method") }
-                commandConsume.onMessage(context, telegramClient)
+                commandConsume.onMessage(update, context, telegramClient)
             }
         }
     }
