@@ -77,7 +77,7 @@ publishing {
     repositories {
         maven {
             name = "SolsticeLeafRepository"
-            url = uri("https://localhost:8080/releases")
+            url = uri("http://localhost:8080/releases")
             credentials(PasswordCredentials::class)
             authentication {
                 create<BasicAuthentication>("basic")
