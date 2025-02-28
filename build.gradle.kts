@@ -77,7 +77,7 @@ publishing {
     repositories {
         maven {
             name = "SolsticeLeafRepository"
-            url = uri("https://repo.kiinse.dev/releases")
+            url = uri("https://repo.sleaf.dev/releases")
             credentials(PasswordCredentials::class)
             authentication {
                 create<BasicAuthentication>("basic")
